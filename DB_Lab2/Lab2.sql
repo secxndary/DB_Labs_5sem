@@ -7,10 +7,10 @@ create tablespace VAD_TS
   autoextend on next 5M
   maxsize 20M
   extent management local;
--- стандартный путь к файлам бд (чтобы найти созданный тейблспейс):
+-- СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РїСѓС‚СЊ Рє С„Р°Р№Р»Р°Рј Р±Рґ (С‡С‚РѕР±С‹ РЅР°Р№С‚Рё СЃРѕР·РґР°РЅРЅС‹Р№ С‚РµР№Р±Р»СЃРїРµР№СЃ):
 -- select * from dba_data_files
 --
--- Вывести все табличные пространства:
+-- Р’С‹РІРµСЃС‚Рё РІСЃРµ С‚Р°Р±Р»РёС‡РЅС‹Рµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°:
 -- select TABLESPACE_NAME, STATUS, CONTENTS from SYS.dba_tablespaces
 
 
@@ -18,7 +18,7 @@ create tablespace VAD_TS
 -----------------------------------------  TASK 2  -------------------------------------------
 
 -- drop tablespace VAD_TS_TEMP
--- не забывайте удалять сами файлы тейблспейсов если че (выше скрипт чтобы найти сами файлы)
+-- РЅРµ Р·Р°Р±С‹РІР°Р№С‚Рµ СѓРґР°Р»СЏС‚СЊ СЃР°РјРё С„Р°Р№Р»С‹ С‚РµР№Р±Р»СЃРїРµР№СЃРѕРІ РµСЃР»Рё С‡Рµ (РІС‹С€Рµ СЃРєСЂРёРїС‚ С‡С‚РѕР±С‹ РЅР°Р№С‚Рё СЃР°РјРё С„Р°Р№Р»С‹)
 create temporary tablespace VAD_TS_TEMP
   tempfile 'VAD_TS_TEMP.dbf'
   size 5M
@@ -29,15 +29,15 @@ create temporary tablespace VAD_TS_TEMP
 
 -----------------------------------------  TASK 3  -------------------------------------------
 
--- Все табличные пространства
-select TABLESPACE_NAME Название, STATUS Статус, CONTENTS Тип, 
-EXTENT_MANAGEMENT Управ_экстентами, BLOCK_SIZE Размер_блоков, NEXT_EXTENT Размер_расширения,
-MAX_EXTENTS Макс_экстентов, MAX_SIZE Макс_размер_в_блоках, BIGFILE Тип_BIGFILE
+-- Р’СЃРµ С‚Р°Р±Р»РёС‡РЅС‹Рµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°
+select TABLESPACE_NAME РќР°Р·РІР°РЅРёРµ, STATUS РЎС‚Р°С‚СѓСЃ, CONTENTS РўРёРї, 
+EXTENT_MANAGEMENT РЈРїСЂР°РІ_СЌРєСЃС‚РµРЅС‚Р°РјРё, BLOCK_SIZE Р Р°Р·РјРµСЂ_Р±Р»РѕРєРѕРІ, NEXT_EXTENT Р Р°Р·РјРµСЂ_СЂР°СЃС€РёСЂРµРЅРёСЏ,
+MAX_EXTENTS РњР°РєСЃ_СЌРєСЃС‚РµРЅС‚РѕРІ, MAX_SIZE РњР°РєСЃ_СЂР°Р·РјРµСЂ_РІ_Р±Р»РѕРєР°С…, BIGFILE РўРёРї_BIGFILE
 from SYS.dba_tablespaces;
 
--- Список всех файлов dba
-select FILE_NAME Путь_к_файлу, BYTES Размер_в_байтах, MAXBYTES Макс_размер, 
-INCREMENT_BY Блоки_для_расширения, ONLINE_STATUS Онлайн_статус, STATUS Статус
+-- РЎРїРёСЃРѕРє РІСЃРµС… С„Р°Р№Р»РѕРІ dba
+select FILE_NAME РџСѓС‚СЊ_Рє_С„Р°Р№Р»Сѓ, BYTES Р Р°Р·РјРµСЂ_РІ_Р±Р°Р№С‚Р°С…, MAXBYTES РњР°РєСЃ_СЂР°Р·РјРµСЂ, 
+INCREMENT_BY Р‘Р»РѕРєРё_РґР»СЏ_СЂР°СЃС€РёСЂРµРЅРёСЏ, ONLINE_STATUS РћРЅР»Р°Р№РЅ_СЃС‚Р°С‚СѓСЃ, STATUS РЎС‚Р°С‚СѓСЃ
 from SYS.dba_data_files;
 
 
@@ -54,7 +54,7 @@ select * from dba_roles where ROLE like '%RL%';
 
 -----------------------------------------  TASK 5  -------------------------------------------
 
--- Вывести привилегии для созданной роли XXX_RL
+-- Р’С‹РІРµСЃС‚Рё РїСЂРёРІРёР»РµРіРёРё РґР»СЏ СЃРѕР·РґР°РЅРЅРѕР№ СЂРѕР»Рё XXX_RL
 select PRIVILEGE
 from sys.dba_sys_privs
 where grantee = 'VAD_RL'
@@ -63,10 +63,10 @@ select PRIVILEGE
 from dba_role_privs rp join role_sys_privs rsp on (rp.granted_role = rsp.role)
 where rp.grantee = 'VAD_RL';
 
--- Вывести все привилегии
+-- Р’С‹РІРµСЃС‚Рё РІСЃРµ РїСЂРёРІРёР»РµРіРёРё
 select * from dba_sys_privs
 
--- Вывести все роли
+-- Р’С‹РІРµСЃС‚Рё РІСЃРµ СЂРѕР»Рё
 select * from dba_roles
 
 
@@ -87,14 +87,14 @@ create profile VAD_PFCORE limit
 
 -----------------------------------------  TASK 7  -------------------------------------------
 
--- Список всех профилей
+-- РЎРїРёСЃРѕРє РІСЃРµС… РїСЂРѕС„РёР»РµР№
 select PROFILE, RESOURCE_NAME, LIMIT from dba_profiles order by PROFILE;
 
--- Список параметров нашего профиля
+-- РЎРїРёСЃРѕРє РїР°СЂР°РјРµС‚СЂРѕРІ РЅР°С€РµРіРѕ РїСЂРѕС„РёР»СЏ
 select PROFILE, RESOURCE_NAME, LIMIT from dba_profiles 
 where PROFILE = 'VAD_PFCORE' order by RESOURCE_NAME;
 
--- Список параметров профиля default
+-- РЎРїРёСЃРѕРє РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕС„РёР»СЏ default
 select PROFILE, RESOURCE_NAME, LIMIT from dba_profiles 
 where PROFILE = 'DEFAULT' order by RESOURCE_NAME;
 
@@ -113,19 +113,19 @@ password expire;
 
 -----------------------------------------  TASK 9  -------------------------------------------
 
--- зайдите в SQLPLUS и вам сразу должно выдаться сообщение "Enter a username",
--- вводите свой XXXCORE, вводите пароль (identified by *пароль*), и должно
--- выйти сообщение The password has expired. Enter new password"
+-- Р·Р°Р№РґРёС‚Рµ РІ SQLPLUS Рё РІР°Рј СЃСЂР°Р·Сѓ РґРѕР»Р¶РЅРѕ РІС‹РґР°С‚СЊСЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ "Enter a username",
+-- РІРІРѕРґРёС‚Рµ СЃРІРѕР№ XXXCORE, РІРІРѕРґРёС‚Рµ РїР°СЂРѕР»СЊ (identified by *РїР°СЂРѕР»СЊ*), Рё РґРѕР»Р¶РЅРѕ
+-- РІС‹Р№С‚Рё СЃРѕРѕР±С‰РµРЅРёРµ The password has expired. Enter new password"
 
 
 
 -----------------------------------------  TASK 10  ------------------------------------------
 
--- даём юзеру XXXCORE привилегии
+-- РґР°С‘Рј СЋР·РµСЂСѓ XXXCORE РїСЂРёРІРёР»РµРіРёРё
 grant connect, create session, create any table, drop any table, create any view, 
 drop any view, create any procedure, drop any procedure to VADCORE;
 
--- далее создаем новое подключение и в этом подключении вводим этот код:
+-- РґР°Р»РµРµ СЃРѕР·РґР°РµРј РЅРѕРІРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рё РІ СЌС‚РѕРј РїРѕРґРєР»СЋС‡РµРЅРёРё РІРІРѕРґРёРј СЌС‚РѕС‚ РєРѕРґ:
 create table VADCORE_KANYE_SONGS 
 (
   TITLE varchar(50),
@@ -165,7 +165,7 @@ alter user VADCORE quota 2M on VAD_QDATA;
 
 
 
--- Код ниже выполняем в соединении VADCORE
+-- РљРѕРґ РЅРёР¶Рµ РІС‹РїРѕР»РЅСЏРµРј РІ СЃРѕРµРґРёРЅРµРЅРёРё VADCORE
 
 create table VADCORE_SONGS
 (

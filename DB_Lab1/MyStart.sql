@@ -15,7 +15,7 @@ commit;
 update VAD_t set x = 288 where s = 'kanye';
 update VAD_t set s = 'genius' where x = 99;
 commit;
-select count(*) Кол_во_строк from VAD_t T where x > 80;
+select count(*) РљРѕР»_РІРѕ_СЃС‚СЂРѕРє from VAD_t T where x > 80;
 delete from VAD_t where s = 'west';
 commit;
 
