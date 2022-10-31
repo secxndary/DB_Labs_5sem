@@ -77,33 +77,67 @@ where TABLESPACE_NAME = 'VAD_QDATA';
 drop tablespace VAD_QDATA including contents and datafiles;
 
 
--- 9. Группа журналов повтора [SYSDBA connection]
-select * from v$log;
+-- 9. Группа журналов повтора [здесь и далее — SYSDBA connection]
+select * from v$log order by GROUP#;
 
 
 -- 10. Все журналы повтора инстанса
-select * from v$logfile;
+select * from v$logfile order by GROUP#;
 
 
 -- 11. Пройти цикл журнала переключений 
 -- (выполняем switch logfile для переключения на следующую группу: 1-> 2 -> 3)
 alter system switch logfile;
-select * from v$log;
-
--- 12. 
+select * from v$log order by GROUP#;
 
 
--- 13. 
+-- 12. Создать свою группу журналов повтора и 3 журнала в ней
+alter database add logfile 
+    group 4 
+    'C:\app\oraora\oradata\orcl\REDO04.LOG'
+    size 50m 
+    blocksize 512;
+    
+alter database add logfile 
+    member 
+    'C:\app\oraora\oradata\orcl\REDO04_1.LOG' 
+    to group 4;
+    
+alter database add logfile 
+    member 
+    'C:\app\oraora\oradata\orcl\REDO04_2.LOG' 
+    to group 4;
+
+select * from v$log order by GROUP#;
+select * from v$logfile order by GROUP#;
 
 
--- 14. 
+-- 13. Удалить созданную группу журналов повтора
+alter database drop logfile member 'C:\app\oraora\oradata\orcl\REDO04_2.LOG';
+alter database drop logfile member 'C:\app\oraora\oradata\orcl\REDO04_1.LOG';
+alter database drop logfile group 4;
+
+select * from v$log order by GROUP#;
+select * from v$logfile order by GROUP#;
 
 
--- 15. 
+-- 14. Проверить, выполняется ли архивирование
+-- Должны быть значения: LOG_MODE = NOARCHIVELOG; ARCHIVER = STOPPED
+select DBID, NAME, LOG_MODE from V$DATABASE;
+select INSTANCE_NAME, ARCHIVER, ACTIVE_STATE from V$INSTANCE;
 
 
--- 16. 
+-- 15. Номер последнего архива (при отсутствии архивирования - таблица пустая)
+select * from V$ARCHIVED_LOG;
 
+
+-- 16. Включить архивирование
+--      SQLPLUS:
+-- connect /as sysdba;
+-- shutdown immediate;
+-- startup mount;
+-- alter database archivelog;
+-- alter database open;
 
 -- 17. 
 
