@@ -1,22 +1,22 @@
--- 1. Список всех файлов табличных пространств 
-select FILE_ID, TABLESPACE_NAME, FILE_NAME from dba_data_files;
-select * from dba_data_files;
+-- 1. РЎРїРёСЃРѕРє РІСЃРµС… С„Р°Р№Р»РѕРІ С‚Р°Р±Р»РёС‡РЅС‹С… РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІ 
+select FILE_ID, TABLESPACE_NAME, FILE_NAME from DBA_DATA_FILES;
+select * from DBA_DATA_FILES;
 
 
--- 2. Создать VAD_QDATA, дать VADCORE квоту на тейблспейс и создать таблицу
+-- 2. РЎРѕР·РґР°С‚СЊ VAD_QDATA, РґР°С‚СЊ VADCORE РєРІРѕС‚Сѓ РЅР° С‚РµР№Р±Р»СЃРїРµР№СЃ Рё СЃРѕР·РґР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ
 create tablespace VAD_QDATA
   datafile 'VAD_QDATA.dbf'
   size 10M
   offline;
 
-select TABLESPACE_NAME, STATUS, CONTENTS from dba_tablespaces;
+select TABLESPACE_NAME, STATUS, contents from DBA_TABLESPACES;
 
 alter tablespace VAD_QDATA ONLINE;
 
-alter user VADCORE quota 2M on VAD_QDATA;
+alter user VAD_PDB_SYS_USER quota 2M on VAD_QDATA;
 
 
--- Код ниже выполняем в соединении VADCORE
+-- РљРѕРґ РЅРёР¶Рµ РІС‹РїРѕР»РЅСЏРµРј РІ СЃРѕРµРґРёРЅРµРЅРёРё VADCORE
 create table VADCORE_SONGS
 (
   id number,
@@ -36,62 +36,64 @@ insert into VADCORE_SONGS values (7, 'Detroit', 'Toxich x Nazar');
 select * from VADCORE_SONGS;
 
 
--- 3. Сегменты VAD_QDATA и сегменты, относящиеся к нашей таблице
-select SEGMENT_NAME, SEGMENT_TYPE, TABLESPACE_NAME, BYTES, BLOCKS, EXTENTS from user_segments;
+-- 3. РЎРµРіРјРµРЅС‚С‹ VAD_QDATA Рё СЃРµРіРјРµРЅС‚С‹, РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє РЅР°С€РµР№ С‚Р°Р±Р»РёС†Рµ
+select SEGMENT_NAME, SEGMENT_TYPE, TABLESPACE_NAME, BYTES, blocks, extents 
+from USER_SEGMENTS
+where SEGMENT_NAME like '%VAD%';
 
 
--- 4. Удалить таблицу и просмотреть сегменты и корзину
+-- 4. РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†Сѓ Рё РїСЂРѕСЃРјРѕС‚СЂРµС‚СЊ СЃРµРіРјРµРЅС‚С‹ Рё РєРѕСЂР·РёРЅСѓ
 drop table VADCORE_SONGS;
 select * from USER_RECYCLEBIN;
-purge table VADCORE_SONGS;  -- очистка корзины USER_RECYCLEBIN и удаление сегмента
+purge table VADCORE_SONGS;  -- РѕС‡РёСЃС‚РєР° РєРѕСЂР·РёРЅС‹ USER_RECYCLEBIN Рё СѓРґР°Р»РµРЅРёРµ СЃРµРіРјРµРЅС‚Р°
 
 
--- 5. Восстановление таблицы
+-- 5. Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С‚Р°Р±Р»РёС†С‹
 flashback table VADCORE_SONGS to before drop;
 
 
--- 6. Вставить 10000 строк в таблицы
+-- 6. Р’СЃС‚Р°РІРёС‚СЊ 10000 СЃС‚СЂРѕРє РІ С‚Р°Р±Р»РёС†С‹
 begin
   for x in 8..10008
-  loop
+  LOOP
     insert into VADCORE_SONGS values(x, 'Genius', 'Kanye West');
-  end loop
+  end loop;
 end;
 
 select count(*) from VADCORE_SONGS;
 
 
 
--- 7. Сколько экстентов в таблице, их размер в блоках и байтах
+-- 7. РЎРєРѕР»СЊРєРѕ СЌРєСЃС‚РµРЅС‚РѕРІ РІ С‚Р°Р±Р»РёС†Рµ, РёС… СЂР°Р·РјРµСЂ РІ Р±Р»РѕРєР°С… Рё Р±Р°Р№С‚Р°С…
 select SEGMENT_NAME, SEGMENT_TYPE, TABLESPACE_NAME, BYTES, BLOCKS, EXTENTS 
-from user_segments
+from USER_SEGMENTS
 where SEGMENT_NAME = 'VADCORE_SONGS';
 
--- Список всех экстентов
-select * from user_extents 
+-- РЎРїРёСЃРѕРє РІСЃРµС… СЌРєСЃС‚РµРЅС‚РѕРІ
+select * from USER_EXTENTS
 where TABLESPACE_NAME = 'VAD_QDATA';
 
 
 
--- 8. Удалить тейблспейс и его файл
+-- 8. РЈРґР°Р»РёС‚СЊ С‚РµР№Р±Р»СЃРїРµР№СЃ Рё РµРіРѕ С„Р°Р№Р»
 drop tablespace VAD_QDATA including contents and datafiles;
 
 
--- 9. Группа журналов повтора [здесь и далее — SYSDBA connection]
-select * from v$log order by GROUP#;
+-- 9. Р“СЂСѓРїРїР° Р¶СѓСЂРЅР°Р»РѕРІ РїРѕРІС‚РѕСЂР° [Р·РґРµСЃСЊ Рё РґР°Р»РµРµ вЂ” SYSDBA connection]
+select * from V$LOG order by GROUP#;
 
 
--- 10. Все журналы повтора инстанса
-select * from v$logfile order by GROUP#;
+-- 10. Р’СЃРµ Р¶СѓСЂРЅР°Р»С‹ РїРѕРІС‚РѕСЂР° РёРЅСЃС‚Р°РЅСЃР°
+select * from V$LOGFILE order by GROUP#;
 
 
--- 11. Пройти цикл журнала переключений 
--- (выполняем switch logfile для переключения на следующую группу: 1-> 2 -> 3)
+-- 11. РџСЂРѕР№С‚Рё С†РёРєР» Р¶СѓСЂРЅР°Р»Р° РїРµСЂРµРєР»СЋС‡РµРЅРёР№ 
+-- (РІС‹РїРѕР»РЅСЏРµРј switch logfile РґР»СЏ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ РіСЂСѓРїРїСѓ: 1-> 2 -> 3)
 alter system switch logfile;
-select * from v$log order by GROUP#;
+select * from V$LOG order by GROUP#;
 
 
--- 12. Создать свою группу журналов повтора и 3 журнала в ней
+-- 12. РЎРѕР·РґР°С‚СЊ СЃРІРѕСЋ РіСЂСѓРїРїСѓ Р¶СѓСЂРЅР°Р»РѕРІ РїРѕРІС‚РѕСЂР° Рё 3 Р¶СѓСЂРЅР°Р»Р° РІ РЅРµР№
 alter database add logfile 
     group 4 
     'C:\app\oraora\oradata\orcl\REDO04.LOG'
@@ -108,30 +110,30 @@ alter database add logfile
     'C:\app\oraora\oradata\orcl\REDO04_2.LOG' 
     to group 4;
 
-select * from v$log order by GROUP#;
-select * from v$logfile order by GROUP#;
+select * from V$LOG order by GROUP#;
+select * from V$LOGFILE order by GROUP#;
 
 
--- 13. Удалить созданную группу журналов повтора
+-- 13. РЈРґР°Р»РёС‚СЊ СЃРѕР·РґР°РЅРЅСѓСЋ РіСЂСѓРїРїСѓ Р¶СѓСЂРЅР°Р»РѕРІ РїРѕРІС‚РѕСЂР°
 alter database drop logfile member 'C:\app\oraora\oradata\orcl\REDO04_2.LOG';
 alter database drop logfile member 'C:\app\oraora\oradata\orcl\REDO04_1.LOG';
 alter database drop logfile group 4;
 
-select * from v$log order by GROUP#;
-select * from v$logfile order by GROUP#;
+select * from V$LOG order by GROUP#;
+select * from V$LOGFILE order by GROUP#;
 
 
--- 14. Проверить, выполняется ли архивирование
--- Должны быть значения: LOG_MODE = NOARCHIVELOG; ARCHIVER = STOPPED
+-- 14. РџСЂРѕРІРµСЂРёС‚СЊ, РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ Р»Рё Р°СЂС…РёРІРёСЂРѕРІР°РЅРёРµ
+-- Р”РѕР»Р¶РЅС‹ Р±С‹С‚СЊ Р·РЅР°С‡РµРЅРёСЏ: LOG_MODE = NOARCHIVELOG; ARCHIVER = STOPPED
 select DBID, NAME, LOG_MODE from V$DATABASE;
 select INSTANCE_NAME, ARCHIVER, ACTIVE_STATE from V$INSTANCE;
 
 
--- 15. Номер последнего архива (при отсутствии архивирования - таблица пустая)
+-- 15. РќРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµРіРѕ Р°СЂС…РёРІР° (РїСЂРё РѕС‚СЃСѓС‚СЃС‚РІРёРё Р°СЂС…РёРІРёСЂРѕРІР°РЅРёСЏ - С‚Р°Р±Р»РёС†Р° РїСѓСЃС‚Р°СЏ)
 select * from V$ARCHIVED_LOG;
 
 
--- 16. Включить архивирование
+-- 16. Р’РєР»СЋС‡РёС‚СЊ Р°СЂС…РёРІРёСЂРѕРІР°РЅРёРµ
 --      SQLPLUS:
 -- connect /as sysdba;
 -- shutdown immediate;
@@ -139,32 +141,60 @@ select * from V$ARCHIVED_LOG;
 -- alter database archivelog;
 -- alter database open;
 
--- 17. 
+-- РўРµРїРµСЂСЊ Р±СѓРґСѓС‚ Р·РЅР°С‡РµРЅРёСЏ: LOG_MODE = ARCHIVEMODE; ARCHIVER = STARTED
+select DBID, NAME, LOG_MODE from V$DATABASE;
+select INSTANCE_NAME, ARCHIVER, ACTIVE_STATE from V$INSTANCE;
 
 
--- 18. 
+
+-- 17. РўРµРїРµСЂСЊ С‚СѓС‚ РґРѕР»Р¶РЅС‹ РїРѕСЏРІРёС‚СЊСЃСЏ С„Р°Р№Р»С‹ Р°СЂС…РёРІР°С†РёРё
+-- (РґР»СЏ РёС… СЃРѕР·РґР°РЅРёСЏ РјРѕР¶РЅРѕ РїСЂРѕСЃС‚Рѕ РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РјРµР¶РґСѓ 
+-- Р¶СѓСЂРЅР°Р»Р°РјРё РїРѕРІС‚РѕСЂР° Рё С„Р°Р№Р»С‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РґСѓС‚СЃСЏ)
+select * from V$ARCHIVED_LOG;
 
 
--- 19. 
+-- 18. РћС‚РєР»СЋС‡РёС‚СЊ Р°СЂС…РёРІРёСЂРѕРІР°РЅРёРµ
+--      SQLPLUS:
+-- connect /as sysdba;
+-- shutdown immediate;
+-- startup mount;
+-- alter database noarchivelog;
+-- alter database open;
+
+-- РўРµРїРµСЂСЊ РѕРїСЏС‚СЊ Р±СѓРґСѓС‚ Р·РЅР°С‡РµРЅРёСЏ: LOG_MODE = NOARCHIVELOG; ARCHIVER = STOPPED
+select DBID, name, LOG_MODE from V$DATABASE;
+select INSTANCE_NAME, ARCHIVER, ACTIVE_STATE from V$INSTANCE;
 
 
--- 20. 
+
+-- 19. РЎРїРёСЃРѕРє СѓРїСЂР°РІР»СЏСЋС‰РёС… С„Р°Р№Р»РѕРІ
+select * from V$CONTROLFILE;
 
 
--- 21. 
+-- 20. РџР°СЂР°РјРµС‚СЂС‹ СѓРїСЂР°РІР»СЏСЋС‰РµРіРѕ С„Р°Р№Р»Р° CONTROL01.ctl
+show parameter control;
+select * from V$CONTROLFILE_RECORD_SECTION;
 
 
--- 22. 
+-- 21. РњРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ С„Р°Р№Р»Р° РїР°СЂР°РјРµС‚СЂРѕРІ SPFILE.ora
+-- C:\APP\ORAORA\PRODUCT\12.1.0\DBHOME_3\DATABASE\SPFILEORCL.ORA
+show parameter spfile;
+select NAME, DESCRIPTION from V$PARAMETER;
 
 
--- 23. 
+-- 22. РЎРѕР·РґР°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ С„Р°Р№Р» РїР°СЂР°РјРµС‚СЂРѕРІ
+-- C:\app\oraora\product\12.1.0\dbhome_3\database\VAD_PFILE.ora
+create pfile = 'VAD_PFILE.ora' from spfile;
 
 
--- 24. 
+-- 23. Р¤Р°Р№Р» РїР°СЂРѕР»РµР№
+select * from V$PWFILE_USERS;     -- РїРѕР»СЊР·РѕРІР°С‚РµР»Рё Рё РёС… СЂРѕР»Рё РІ С„Р°Р№Р»Рµ РїР°СЂРѕР»РµР№
+show parameter remote_login_passwordfile;   -- exclusive/shared/none
 
 
--- 25. 
+-- 24. Р¤Р°Р№Р» СЃРѕРѕР±С‰РµРЅРёР№ (РїСЂРѕС‚РѕРєРѕР»С‹ СЂР°Р±РѕС‚С‹, РґР°РјРїС‹, С‚СЂР°СЃСЃРёСЂРѕРІРєРё)
+select * from V$DIAG_INFO;
 
 
--- 26. 
-
+-- 25. Р¤Р°Р№Р» РїСЂРѕС‚РѕРєРѕР»Р° СЂР°Р±РѕС‚С‹ РёРЅСЃС‚Р°РЅСЃР° LOG.xml
+-- C:\app\oraora\diag\rdbms\orcl\orcl\alert\log.xml
