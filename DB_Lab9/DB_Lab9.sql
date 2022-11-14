@@ -105,7 +105,7 @@ drop table T1;
 
 
 
--- 8. Создать кластер
+-- 8. Создать хеш-кластер
 drop cluster VAD_PDB_SYS_USER.ABC;
 
 create cluster VAD_PDB_SYS_USER.ABC 
@@ -142,3 +142,73 @@ create table C
     ARTIST varchar(200)
 )
 cluster VAD_PDB_SYS_USER.ABC(XC, VC);
+
+
+
+-- 12. Найти кластер и таблицы в представлениях словаря
+select * from DBA_SEGMENTS
+where SEGMENT_TYPE = 'CLUSTER'
+order by SEGMENT_NAME;
+
+select * from USER_TABLES 
+where CLUSTER_NAME = 'ABC' 
+order by TABLE_NAME;
+
+
+
+-- 13. Приватный синоним (таблица C)
+drop synonym ARTIST_TABLE_SYNONYM;
+create synonym ARTIST_TABLE_SYNONYM for C;
+select * from ARTIST_TABLE_SYNONYM;
+
+
+
+-- 14. Публичный синоним (таблицы B)
+drop synonym ALBUM_TABLE_SYNONYM;
+create public synonym ALBUM_TABLE_SYNONYM for B;
+select * from ALBUM_TABLE_SYNONYM;
+
+
+
+-- 15. Создать две связанные по ключу таблицы и создать на их основе вьюху
+drop table CUSTOMERS;
+drop table PRODUCERS;
+
+create table CUSTOMERS (ID number(10) primary key);
+create table PRODUCERS (ID number(10), foreign key (ID) references CUSTOMERS(ID));
+
+begin
+    for i in 1..100 loop
+        insert into CUSTOMERS(ID) values (VAD_PDB_SYS_USER.S1.NEXTVAL);
+        insert into PRODUCERS(ID) values (VAD_PDB_SYS_USER.S1.CURRVAL);
+    end loop;
+end;
+
+select * from CUSTOMERS;
+select * from PRODUCERS;
+
+
+create view CUSTOMERS_AND_PRODUCERS_IDS
+as select CUSTOMERS.ID CUST_ID, PRODUCERS.ID PROD_ID
+from CUSTOMERS join PRODUCERS 
+on CUSTOMERS.ID = PRODUCERS.ID;
+
+select * from CUSTOMERS_AND_PRODUCERS_IDS;
+
+
+
+-- 16. Материализированные представления
+select NAME, VALUE from V$PARAMETER where name like '%rewrite%';
+
+drop materialized view MATERIAL_CUST_AND_PRODS_IDS;
+
+create materialized view MATERIAL_CUST_AND_PRODS_IDS
+build immediate
+refresh force on demand
+start with sysdate
+next sysdate + numtodsinterval (2, 'MINUTE')
+as select CUSTOMERS.ID CUST_ID, PRODUCERS.ID PROD_ID
+from CUSTOMERS join PRODUCERS 
+on CUSTOMERS.ID = PRODUCERS.ID;
+
+select * from MATERIAL_CUST_AND_PRODS_IDS;
