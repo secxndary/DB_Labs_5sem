@@ -1,0 +1,114 @@
+
+SQL*Loader: Release 12.1.0.1.0 - Production on Wed Dec 21 00:56:32 2022
+
+Copyright (c) 1982, 2013, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   ORDRS.ctl
+Data File:      ORDRS.ctl
+  Bad File:     ORDRS.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Bind array:     64 rows, maximum of 256000 bytes
+Continuation:    none specified
+Path used:      Conventional
+
+Table ORDRS, loaded from every logical record.
+Insert option in effect for this table: REPLACE
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+ORDER_NUM                           FIRST     *   ;       CHARACTER            
+ORDER_DATE                           NEXT     *   ;       DATE DD-MM-YYYY      
+PRODUCT                              NEXT     *   ;       CHARACTER            
+    SQL string for column : "UPPER(:PRODUCT)"
+AMOUNT                               NEXT     *   ;       CHARACTER            
+    SQL string for column : ":AMOUNT * 2"
+TEXT                              DERIVED     *  EOF      CHARACTER            
+    Dynamic LOBFILE.  Filename in field F_NAME
+IMG                               DERIVED     *  EOF      CHARACTER            
+    Dynamic LOBFILE.  Filename in field I_NAME
+F_NAME                               NEXT     *   ;       CHARACTER            
+I_NAME                               NEXT     *   ;       CHARACTER            
+
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 1, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 1, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 1
+field for dynamic file name is F_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column IMG, row 1, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column IMG, row 1, table ORDRS
+no value set for dynamic file for column IMG in table ORDRS row 1
+field for dynamic file name is I_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 2, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 2, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 2
+field for dynamic file name is F_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column IMG, row 2, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column IMG, row 2, table ORDRS
+no value set for dynamic file for column IMG in table ORDRS row 2
+field for dynamic file name is I_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 4, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 4, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 4
+field for dynamic file name is F_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column IMG, row 4, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column IMG, row 4, table ORDRS
+no value set for dynamic file for column IMG in table ORDRS row 4
+field for dynamic file name is I_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 5, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 5, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 5
+field for dynamic file name is F_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column IMG, row 5, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column IMG, row 5, table ORDRS
+no value set for dynamic file for column IMG in table ORDRS row 5
+field for dynamic file name is I_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 6, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 6, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 6
+field for dynamic file name is F_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column IMG, row 6, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column IMG, row 6, table ORDRS
+no value set for dynamic file for column IMG in table ORDRS row 6
+field for dynamic file name is I_NAME in table ORDRS
+
+SQL*Loader-462: error inserting LOB into column TEXT, row 7, table ORDRS
+SQL*Loader-646: lob set to EMPTY in column TEXT, row 7, table ORDRS
+no value set for dynamic file for column TEXT in table ORDRS row 7
+field for dynamic file name is F_NAME in table ORDRS
+
+Table ORDRS:
+  7 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+
+Space allocated for bind array:                  99072 bytes(64 rows)
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:             7
+Total logical records rejected:         0
+Total logical records discarded:        0
+
+Run began on Wed Dec 21 00:56:32 2022
+Run ended on Wed Dec 21 00:56:33 2022
+
+Elapsed time was:     00:00:00.08
+CPU time was:         00:00:00.00
